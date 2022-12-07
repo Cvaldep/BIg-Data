@@ -1,0 +1,31 @@
+
+wget -O asset_cropland-fires_emissions.csv https://www.dropbox.com/s/b9ecjgnxvvj8vnr/asset_cropland-fires_emissions.csv
+
+hdfs dfs -mkdir cropland_fires_emissions
+hdfs dfs -put asset_cropland-fires_emissions.csv cropland_fires_emissions/
+hdfs dfs -ls cropland_fires_emissions
+
+beeline
+
+use your_user_name;
+
+DROP TABLE IF EXISTS cropland_fires_emissions2;
+
+***Replace database name
+CREATE EXTERNAL TABLE IF NOT EXISTS cropland_fires_emissions2 (Asset_id INTEGER, Iso3_Country STRING, original_inventory_sector STRING, Start_Time TIMESTAMP, End_Time TIMESTAMP, Temporal_granularity STRING, gas STRING, emissions_quantity DOUBLE, emissions_factor DOUBLE, emissions_factor_units DOUBLE, capacity Double, capacity_units DOUBLE, capacity_factor INTEGER, activity INTEGER, activity_units DOUBLE, created_date TIMESTAMP, modified_date TIMESTAMP, asset_name STRING, asset_type STRING, st_astext VARCHAR(200)) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/YOURDATABASE/cropland_fires_emissions' TBLPROPERTIES ('skip.header.line.count'='3');
+
+show tables;
+
+describe cropland_fires_emissions2;
+
+Select * from cropland_fires_emissions2 limit 3;
+
+CREATE VIEW cropland_fires_emissions3 AS SELECT cropland_fires_emissions2.iso3_country AS COUNTRY, cropland_fires_emissions2.gas AS GAS, cropland_fires_emissions2.emissions_quantity AS EMISSIONS_QUANTITY, cropland_fires_emissions2.asset_name AS ASSET_NAME FROM cropland_fires_emissions2;
+
+select * from cropland_fires_emissions3 WHERE gas = 'co2e_20yr' ORDER BY emissions_quantity ASC LIMIT 10;
+
+select * from cropland_fires_emissions3 WHERE gas = 'co2e_20yr' ORDER BY emissions_quantity DESC LIMIT 10;
+
+SELECT cropland_fires_emissions3.emissions_quantity, cropland_fires_emissions3.country FROM cropland_fires_emissions3 ORDER BY cropland_fires_emissions3.emissions_quantity ASC LIMIT 10;
+
+SELECT cropland_fires_emissions3.emissions_quantity, cropland_fires_emissions3.country FROM cropland_fires_emissions3 ORDER BY cropland_fires_emissions3.emissions_quantity DESC LIMIT 10;
